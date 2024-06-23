@@ -1,0 +1,184 @@
+4)LOAD AND EXPLORE DATASET OF CSV
+
+import pandas as pd
+def explore_dataset(file_path):
+    if file_path.endswith('.csv'):
+        df=pd.read_csv("C:/Users/Meghana/Downloads/Iris.csv")
+    elif file_path.endswith('.xlsx'):
+        df=pd.read_csv("C:/Users/Meghana/Downloads/Iris.xlsx")
+    else:
+        print("unsupported file please provide a csv or excel file")
+        return
+    print("dataset information:")
+    print(df.info())
+    print("\n first few rows of the dataset:")
+    print(df.head())
+    print("\n summary statistics:")
+    print(df.describe())
+    print("\n unique values for categorical column:")
+    for column in df.select_dtypes(include='object').columns:
+        print(f"(column):{df[column].unique()}")
+file_path='iris.csv'
+explore_dataset("C:/Users/Meghana/Downloads/Iris.csv")
+
+
+
+
+
+5)VISUALISE DATASET TO GAIN INSIGHTS USING MATPLOTLIB
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+df=pd.read_csv("C:/Users/Meghana/Downloads/Iris.csv")
+cats=list(df.select_dtypes(include=['object']).columns)
+nums=list(df.select_dtypes(exclude=['object']).columns)
+print(f'categorical variables:{cats}')
+print(f'numerical variables:{nums}')
+sns.pairplot(df)
+plt.title("pairplot of the dataset")
+plt.show()
+if df.iloc[:,4].dtype == 'object':
+    sns.countplot(x=df.columns[1],data=df,hue='variety')
+    plt.title("bar chart of categorical column")
+    plt.xlabel(df.columns[1])
+    plt.ylabel("count")
+    plt.show()
+else:
+    print("no categorical column found")
+
+
+
+6)HANDLE MISSING DATA
+
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+df=pd.read_csv("C:/Users/Meghana/Downloads/train.csv")
+df.head(3)
+df.isnull().sum()
+df=df.drop(columns='Cabin', axis=1)
+df['Age'].fillna(df['Age'].mean(), inplace=True)
+df['Embarked'].fillna(df['Embarked'].mode()[0],inplace=True)
+df.isnull().sum().sum()
+df.info()
+df=df.drop(columns=['PassengerId','Name','Ticket'],axis=1)
+le=LabelEncoder()
+df['Sex']=le.fit_transform(df['Sex'])
+df['Embarked']=le.fit_transform(df['Embarked'])
+df.info()
+x=df.drop(columns=['Survived'],axis=1)
+y=df['Survived']
+x.head()
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2,random_state=42)
+sc=StandardScaler()
+x_train=sc.fit_transform(x_train)
+scaled_df=pd.DataFrame(x_train,columns=x.columns)
+scaled_df.head()
+
+
+
+7)K-NEAREST NEIGHBORS
+
+import numpy as np
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score,classification_report
+df=pd.read_csv("C:/Users/Meghana/Downloads/brightness.csv")
+le=LabelEncoder()
+df['class']=le.fit_transform(df['class'])
+x=df.drop(columns=['class'],axis=1)
+y=df['class']
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2,random_state=42)
+knn_model=KNeighborsClassifier(n_neighbors=3)
+knn_model.fit(x_train,y_train)
+y_pred=knn_model.predict(x_test)
+acc=accuracy_score(y_test,y_pred)
+print("accuracy:", acc)
+
+brightness=float(input("enter the brightness:"))
+saturation=float(input("enter the saturation:"))
+
+
+user_input=np.array([[brightness,saturation]])
+user_pred= knn_model.predict(user_input)
+if user_pred[0]==0:
+    print("the value belongs to blue class")
+else:
+    print("the value belongs to red class")
+
+
+8)LINEAR REGRESSION MODEL
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+
+df = pd.read_csv("C:/Users/Meghana/Downloads/house.csv")
+x = df.drop(columns=["price"], axis=1)
+y = df["price"]
+
+model = LinearRegression()
+model.fit(x, y)
+
+y_pred = model.predict(x)
+
+sns.regplot(x=y, y=y_pred, scatter_kws={"s": 10}, line_kws={"color": "red"})
+plt.xlabel("Actual values")
+plt.ylabel("Predicted values")
+plt.title("Actual vs Predicted Values")
+plt.show()
+
+size = float(input("Enter size of house in sq. ft.: "))
+age = float(input("Enter the age of house in years: "))
+user_input = np.array([[size, age]])
+predicted_house = model.predict(user_input)
+
+print("Predicted price for a house with size {0} sq. ft. and age {1} years is: Rs. {2} lakhs".format(size, age, predicted_house[0]))
+
+9)DECISION TREE
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier,plot_tree
+dt1=pd.read_csv("C:/Users/Meghana/Downloads/weather.csv")
+data_encoded=pd.get_dummies(dt1,columns=['outlook','temp','humidity','windy'])
+x=data_encoded.drop('play tennis',axis=1)
+y=data_encoded['play tennis']
+dtc=DecisionTreeClassifier()
+dtc.fit(x,y)
+plt.figure(figsize=(12,8))
+plot_tree(dtc,feature_names=x.columns,class_names=np.unique(y),filled=True)
+plt.show()
+
+10)K-MEANS CLUSTERING
+
+import matplotlib.pyplot as plt 
+from sklearn.datasets import make_blobs
+from sklearn.cluster import KMeans
+
+x,y=make_blobs(n_samples=100,centers=3,cluster_std=0.8,random_state=42)
+kmeans=KMeans(n_clusters=3,random_state=42)
+kmeans.fit(x)
+labels=kmeans.predict(x)
+c=kmeans.cluster_centers_
+print(c)
+plt.figure(figsize=(8,6))
+plt.scatter(x[:,0],x[:,1],c=labels,cmap='viridis')
+plt.scatter(kmeans.cluster_centers_[:,0],kmeans.cluster_centers_[:,1],s=100,c='red',label='centroids')
+plt.title('k')
+plt.xlabel('j')
+plt.ylabel('kl')
+plt.legend('jm')
+plt.show()
+
